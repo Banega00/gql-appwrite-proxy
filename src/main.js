@@ -18,7 +18,6 @@ function importSchema() {
 
 // This Appwrite function will be executed every time your function is triggered
 export default async ({ req, res, log, error }) => {
-  log(`Value is now ${value}`);
   // You can use the Appwrite SDK to interact with other services
   // For this example, we're using the Users service
   const client = new Client()
@@ -45,6 +44,6 @@ export default async ({ req, res, log, error }) => {
     }
   } else {
     // Send a response to the user
-    res.json({ message: 'Hello from Appwrite!' });
+    res.status(200).json({ message: 'Hello from Appwrite!' });
   }
 };
