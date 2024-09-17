@@ -38,9 +38,9 @@ export default async ({ req, res, log, error }) => {
         variableValues: variables,
       });
 
-      return res.json(result).status(200);
+      return res.json(result);
     } catch (error) {
-      return res.status(400).json({ error: 'Invalid GraphQL query' });
+      return res.json({ error: 'Invalid GraphQL query' });
     }
   } else {
     // Send a response to the user
