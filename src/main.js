@@ -35,6 +35,8 @@ export default async ({ req, res, log, logError }) => {
     try {
       const { query, variables } = req.body;
 
+      log(query);
+
       const result = await graphql({
         schema: importSchema(),
         source: query,
