@@ -38,7 +38,9 @@ export default async ({ req, res, log, error: logError }) => {
       log('THIS IS PAYLOAD');
       log(req.payload);
       log('THIS IS REQ');
-      log(req);
+      log(JSON.stringify(req));
+      log('THIS IS STRINGIFIED BODY');
+      log(JSON.stringify(req.body));
       const { query, variables } = JSON.parse(req.body);
 
       log(query);
