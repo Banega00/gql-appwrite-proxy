@@ -37,6 +37,8 @@ export default async ({ req, res, log, error: logError }) => {
       log(req.body);
       log('THIS IS PAYLOAD');
       log(req.payload);
+      log('THIS IS REQ');
+      log(req);
       const { query, variables } = JSON.parse(req.body);
 
       log(query);
