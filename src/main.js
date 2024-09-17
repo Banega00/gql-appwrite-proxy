@@ -38,7 +38,7 @@ export default async ({ req, res, log, logError }) => {
       });
 
       log('Success');
-      log(result);
+      log(JSON.stringify(result));
       return res.json(result, 200);
     } catch (error) {
       logError('Error');
