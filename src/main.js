@@ -13,5 +13,5 @@ export default async ({ req, res, log, error }) => {
 
   log(`Value is now ${value}`);
 
-  res.json({ message: `Value is now ${value}` }).status(200);
+  res.json({ message: `Value is now ${value}` });
 };
