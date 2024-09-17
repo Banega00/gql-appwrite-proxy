@@ -1,5 +1,4 @@
 import { Client, Users } from 'node-appwrite';
-import resolvers from './resolvers.js';
 import { parse, buildSchema, graphql } from 'graphql';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -15,6 +14,12 @@ function importSchema() {
   );
   return buildSchema(schemaString);
 }
+
+const resolvers = {
+  health() {
+    return 'health';
+  },
+};
 
 // This Appwrite function will be executed every time your function is triggered
 export default async ({ req, res, log, logError }) => {
