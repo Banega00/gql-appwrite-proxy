@@ -18,6 +18,7 @@ function importSchema() {
 
 // This Appwrite function will be executed every time your function is triggered
 export default async ({ req, res, log, error }) => {
+  log(typeof error);
   // You can use the Appwrite SDK to interact with other services
   // For this example, we're using the Users service
   const client = new Client()
@@ -39,7 +40,6 @@ export default async ({ req, res, log, error }) => {
 
       return res.json(result).status(200);
     } catch (error) {
-      error(error.message ?? error);
       return res.status(400).json({ error: 'Invalid GraphQL query' });
     }
   } else {
