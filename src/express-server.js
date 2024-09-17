@@ -1,7 +1,7 @@
 import express from 'express';
 import { readFileSync } from 'fs';
 import { buildSchema } from 'graphql';
-import handler from './main-temp.js';
+import handler from './main.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
