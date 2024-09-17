@@ -33,7 +33,10 @@ export default async ({ req, res, log, error: logError }) => {
 
   if (req.path == '/graphql') {
     try {
+      log('THIS IS BODY!');
       log(req.body);
+      log('THIS IS PAYLOAD');
+      log(req.payload);
       const { query, variables } = JSON.parse(req.body);
 
       log(query);
