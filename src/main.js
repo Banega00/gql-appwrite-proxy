@@ -31,6 +31,10 @@ export default async ({ req, res, log, error: logError }) => {
     .setKey(req.headers['x-appwrite-key'] ?? '');
   const users = new Users(client);
 
+  log('ALO OVO NE RADI JA NE ZNAM');
+
+  log(JSON.stringify(req.bodyJson));
+
   if (req.path == '/graphql') {
     try {
       [
