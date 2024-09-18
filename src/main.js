@@ -55,6 +55,7 @@ export default async ({ req, res, log, error: logError }) => {
         } catch (error) {
           log('ERROR');
           log(`Error logging typeof ${key}`);
+          return;
         }
         if (typeof req[key] === 'object') {
           log('OBJECT');
@@ -65,6 +66,7 @@ export default async ({ req, res, log, error: logError }) => {
           } catch (error) {
             log('ERROR');
             log(`Error logging ${key}`);
+            return;
           }
         }
       });
