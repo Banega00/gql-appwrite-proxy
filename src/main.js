@@ -33,33 +33,25 @@ export default async ({ req, res, log, error: logError }) => {
 
   if (req.path == '/graphql') {
     try {
-      log('THIS IS TYPE OF REQ');
-      log(typeof req);
-
-      log('THIS IS REQ.PAYLOAD');
-      log(req.payload);
-
-
-      log('THIS ARE REQ KEYS');
-      log(Object.keys(req).join(', '));
-
-
-      log('THIS ARE REQ KEYS');
-      log(Object.keys(req));
-
-      log('THIS IS BODY!');
-      log(req.body);
-      log('THIS IS PAYLOAD');
-      log(req.payload);
-
-      log('BOOLEAN BODY');
-      log(new Boolean(req.body));
-
-      log('BOOLEAN PAYLOAD');
-      log(new Boolean(req.payload));
-
-      log('BOOLEAN REQ');
-      log(new Boolean(req));
+      [
+        'body',
+        'bodyRaw',
+        'bodyText',
+        'bodyJson',
+        'bodyBinary',
+        'headers',
+        'method',
+        'host',
+        'scheme',
+        'query',
+        'queryString',
+        'port',
+        'url',
+        'path',
+      ].forEach((key) => {
+        log(`typeof req[${key}]: ${typeof req[key]}`);
+        log(`${key}: ${req[key]}`);
+      });
 
       const { query, variables } = JSON.parse(req.body);
 
