@@ -22,18 +22,22 @@ const resolvers = {
 };
 
 // This Appwrite function will be executed every time your function is triggered
-export default async ({ req, res, log, error: logError }) => {
+export default async ({ req, res, log, error }) => {
   // You can use the Appwrite SDK to interact with other services
   // For this example, we're using the Users service
-  const client = new Client()
-    .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)
-    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-    .setKey(req.headers['x-appwrite-key'] ?? '');
-  const users = new Users(client);
+  // const client = new Client()
+  //   .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)
+  //   .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
+  //   .setKey(req.headers['x-appwrite-key'] ?? '');
+  // const users = new Users(client);
 
-  log('ALO OVO NE RADI JA NE ZNAM');
-
-  log(JSON.stringify(req.bodyJson));
+  try {
+    log('AKO OVO NE RADI JA NE ZNAM');
+    log(JSON.stringify(req.bodyJson));
+  } catch (error) {
+    log('ERROR');
+    log(error.message);
+  }
 
   if (req.path == '/graphql') {
     try {
