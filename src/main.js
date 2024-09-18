@@ -55,6 +55,7 @@ export default async ({ req, res, log, error: logError }) => {
         } catch (error) {
           log('ERROR');
           log(`Error logging typeof ${key}`);
+          log('------------------------');
           return;
         }
         if (typeof req[key] === 'object') {
@@ -66,9 +67,11 @@ export default async ({ req, res, log, error: logError }) => {
           } catch (error) {
             log('ERROR');
             log(`Error logging ${key}`);
+            log('------------------------');
             return;
           }
         }
+        log('------------------------');
       });
 
       const { query, variables } = JSON.parse(req.body);
