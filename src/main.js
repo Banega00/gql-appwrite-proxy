@@ -3,6 +3,7 @@ import { parse, buildSchema, graphql } from 'graphql';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { readFileSync } from 'fs';
+import AppExpress from '@itznotabug/appexpress';
 
 function importSchema() {
   const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
