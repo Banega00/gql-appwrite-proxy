@@ -38,9 +38,6 @@ export default async ({ req, res, log, error: logError }) => {
       log('THIS IS PAYLOAD');
       log(req.payload);
       log('THIS IS REQ');
-      log(JSON.stringify(req));
-      log('THIS IS STRINGIFIED BODY');
-      log(JSON.stringify(req.body));
       
       log('BOOLEAN BODY');
       log(new Boolean(req.body));
