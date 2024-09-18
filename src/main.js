@@ -50,7 +50,11 @@ export default async ({ req, res, log, error: logError }) => {
         'path',
       ].forEach((key) => {
         log(`typeof req[${key}]: ${typeof req[key]}`);
-        log(`${key}: ${req[key]}`);
+        if (typeof req[key] === 'object') {
+          log(`req[${key}]: ${Object.keys(req[key])}`);
+        } else {
+          log(`${key}: ${req[key]}`);
+        }
       });
 
       const { query, variables } = JSON.parse(req.body);
