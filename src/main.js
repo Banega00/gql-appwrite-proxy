@@ -45,7 +45,7 @@ export default async ({ req, res, log, error: logError }) => {
 
 
       log('THIS ARE REQ KEYS');
-      log(Object.keys(req);
+      log(Object.keys(req));
 
       log('THIS IS BODY!');
       log(req.body);
