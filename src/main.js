@@ -62,6 +62,9 @@ export default async ({ req, res, log, error: logError }) => {
           log('OBJECT');
           log(`req[${key}]: ${Object.keys(req[key])}`);
         } else {
+          if (typeof req[key] === 'string') {
+            log(`LENGTH: ${req[key].length}`);
+          }
           try {
             log(`${key}: ${req[key]}`);
           } catch (error) {
