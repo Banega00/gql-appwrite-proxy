@@ -49,13 +49,16 @@ export default async ({ req, res, log, error: logError }) => {
         'url',
         'path',
       ].forEach((key) => {
+        log('LOGGING TYPEOF');
         log(`typeof req[${key}]: ${typeof req[key]}`);
         if (typeof req[key] === 'object') {
+          log('OBJECT');
           log(`req[${key}]: ${Object.keys(req[key])}`);
         } else {
           try {
             log(`${key}: ${req[key]}`);
           } catch (error) {
+            log('ERROR');
             log(`Error logging ${key}`);
           }
         }
