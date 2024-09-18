@@ -36,11 +36,21 @@ export default async ({ req, res, log, error: logError }) => {
       log('THIS IS TYPE OF REQ');
       log(typeof req);
 
+      log('THIS IS REQ.PAYLOAD');
+      log(req.payload);
+
+
+      log('THIS ARE REQ KEYS');
+      log(Object.keys(req).join(', '));
+
+
+      log('THIS ARE REQ KEYS');
+      log(Object.keys(req);
+
       log('THIS IS BODY!');
       log(req.body);
       log('THIS IS PAYLOAD');
       log(req.payload);
-      log('THIS IS REQ');
 
       log('BOOLEAN BODY');
       log(new Boolean(req.body));
