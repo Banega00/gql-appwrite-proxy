@@ -53,7 +53,11 @@ export default async ({ req, res, log, error: logError }) => {
         if (typeof req[key] === 'object') {
           log(`req[${key}]: ${Object.keys(req[key])}`);
         } else {
-          log(`${key}: ${req[key]}`);
+          try {
+            log(`${key}: ${req[key]}`);
+          } catch (error) {
+            log(`Error logging ${key}`);
+          }
         }
       });
 
