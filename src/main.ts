@@ -2,7 +2,6 @@ import { graphql } from 'graphql';
 import { resolvers } from './resolvers.js';
 import { importSchema } from './schema.js';
 import { Context } from './types.js';
-import { appwriteService } from './appwrite-service.js';
 
 // const appExpress = new AppExpress();
 
