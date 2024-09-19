@@ -48,7 +48,11 @@ export default async ({ req, res, log, error }) => {
   // const users = new Users(client);
 
   try {
-    const { query, variables } = JSON.parse(req.body);
+    log(`typeof req.bodyJson: ${typeof req.bodyJson}`);
+    log(req.bodyJson);
+    log(`typeof req.body: ${typeof req.body}`);
+    log(req.body);
+    const { query, variables } = JSON.parse(req.bodyJson);
 
     log(query);
 
