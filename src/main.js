@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const graphql_1 = require("graphql");
 const resolvers_js_1 = require("./resolvers.js");
 const schema_js_1 = require("./schema.js");
+const appwrite_service_js_1 = require("./appwrite-service.js");
 // const appExpress = new AppExpress();
 // Simple GET route
 // appExpress.get('/', (request, response) => {
@@ -40,7 +41,7 @@ exports.default = (context) => __awaiter(void 0, void 0, void 0, function* () {
             rootValue: resolvers_js_1.resolvers,
             variableValues: variables,
         });
-        // log(appwriteService.test());
+        log(appwrite_service_js_1.appwriteService.test());
         return res.json(result, 200);
     }
     catch (error) {
