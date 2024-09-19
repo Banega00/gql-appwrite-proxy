@@ -4,6 +4,7 @@ export const resolvers = {
   },
 
   findAllGroupsOfUser(_: any, name: String) {
+    
     return name;
   },
 };
