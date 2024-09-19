@@ -1,5 +1,5 @@
 export const resolvers = {
   health() {
-    return 'health';
+    return 'health+1';
   },
 };
