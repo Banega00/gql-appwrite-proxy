@@ -52,7 +52,7 @@ export default async ({ req, res, log, error }) => {
     log(req.bodyJson);
     log(`typeof req.body: ${typeof req.body}`);
     log(req.body);
-    const { query, variables } = JSON.parse(req.bodyJson);
+    const { query, variables } = req.body;
 
     log(query);
 
