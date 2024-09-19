@@ -1,50 +1,48 @@
-function parseJwt(token: string) {
-  return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-}
+import { graphql } from 'graphql';
+import { resolvers } from './resolvers.js';
+import { importSchema } from './schema.js';
+import { Context } from './types.js';
 
-/**
- * https://appwrite.io/docs/functions#functionVariables
- */
-type AppwriteVariables =
-  | 'APPWRITE_FUNCTION_ID'
-  | 'APPWRITE_FUNCTION_NAME'
-  | 'APPWRITE_FUNCTION_DEPLOYMENT'
-  | 'APPWRITE_FUNCTION_TRIGGER'
-  | 'APPWRITE_FUNCTION_RUNTIME_NAME'
-  | 'APPWRITE_FUNCTION_RUNTIME_VERSION'
-  | 'APPWRITE_FUNCTION_EVENT'
-  | 'APPWRITE_FUNCTION_EVENT_DATA'
-  | 'APPWRITE_FUNCTION_DATA'
-  | 'APPWRITE_FUNCTION_PROJECT_ID'
-  | 'APPWRITE_FUNCTION_USER_ID'
-  | 'APPWRITE_FUNCTION_JWT';
+// const appExpress = new AppExpress();
 
-type AppwriteResponse = {
-  send: (text: string, status?: number) => void;
-  json: (obj: Record<string, unknown>, status?: number) => void;
+// Simple GET route
+// appExpress.get('/', (request, response) => {
+//   response.send('Welcome to AppExpress!');
+// });
+
+// JSON response
+// appExpress.post('/hello', (request, response) => {
+//   response.json({ message: 'Hello World' });
+// });
+
+// export default async (context) => await appExpress.attach(context);
+
+// This Appwrite function will be executed every time your function is triggered
+export default async (context: Context) => {
+  const { req, res, log, error } = context;
+  // You can use the Appwrite SDK to interact with other services
+  // For this example, we're using the Users service
+  // const client = new Client()
+  //   .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)
+  //   .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
+  //   .setKey(req.headers['x-appwrite-key'] ?? '');
+  // const users = new Users(client);
+
+  try {
+    const { query, variables } = req.body;
+
+    log(query);
+
+    const result = await graphql({
+      schema: importSchema(),
+      source: query,
+      rootValue: resolvers,
+      variableValues: variables,
+    });
+
+    return res.json(result, 200);
+  } catch (error: any) {
+    log('Invalid Graphql query');
+    return res.json({ error: error.message }, 500);
+  }
 };
-
-/*
-  'req' variable has:
-    'headers' - object with request headers
-    'payload' - request body data as a string
-    'variables' - object with function variables
-
-  'res' variable has:
-    'send(text, status)' - function to return text response. Status code defaults to 200
-    'json(obj, status)' - function to return JSON response. Status code defaults to 200
-
-  If an error is thrown, a response with code 500 will be returned.
-*/
-export default async function (
-  req: {
-    headers: Record<string, string>;
-    payload: string;
-    variables: Record<AppwriteVariables, string>;
-  },
-  res: AppwriteResponse
-) {
-  const userId = parseJwt(req.variables.APPWRITE_FUNCTION_JWT).userId;
-
-  res.json({ message: `Hello ${userId}` });
-}
