@@ -39,7 +39,7 @@ export default async (context: Context) => {
       variableValues: variables,
     });
 
-    log(appwriteService.test());
+    // log(appwriteService.test());
 
     return res.json(result, 200);
   } catch (error: any) {

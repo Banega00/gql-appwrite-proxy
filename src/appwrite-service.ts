@@ -52,4 +52,4 @@ class AppwriteService {
   }
 }
 
-export const appwriteService = new AppwriteService();
+// export const appwriteService = new AppwriteService();
