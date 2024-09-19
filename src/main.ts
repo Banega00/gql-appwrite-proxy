@@ -2,6 +2,7 @@ import { graphql } from 'graphql';
 import { resolvers } from './resolvers.js';
 import { importSchema } from './schema.js';
 import { Context } from './types.js';
+import { appwriteService } from './appwrite-service.js';
 
 // const appExpress = new AppExpress();
 
@@ -31,14 +32,14 @@ export default async (context: Context) => {
   try {
     const { query, variables } = req.body;
 
-    log(query);
-
     const result = await graphql({
       schema: importSchema(),
       source: query,
       rootValue: resolvers,
       variableValues: variables,
     });
+
+    log(appwriteService.test());
 
     return res.json(result, 200);
   } catch (error: any) {
