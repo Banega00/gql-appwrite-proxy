@@ -150,7 +150,7 @@ type Query {
   health: String!
   user: UserDTO
   users: [UserDTO!]!
-  findAllGroupsOfUser(id: String!): [GroupDTO!]!
+  findAllGroupsOfUser(id: String!): String
   findAllVenuesOfUser(id: String!): [VenueDTO!]!
   group: [GroupDTO!]!
   groupById(id: String!): GroupDTO!

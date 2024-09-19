@@ -3,5 +3,7 @@ export const resolvers = {
     return 'health+1+2';
   },
 
-  async createAnonymousSession() {},
+  findAllGroupsOfUser(name: String) {
+    return name;
+  },
 };
