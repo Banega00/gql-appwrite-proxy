@@ -3,7 +3,7 @@ export const resolvers = {
     return 'health+1+2';
   },
 
-  findAllGroupsOfUser(name: String) {
+  findAllGroupsOfUser(_: any, name: String) {
     return name;
   },
 };
