@@ -22,107 +22,107 @@ const resolvers = {
   },
 };
 
-const appExpress = new AppExpress();
+// const appExpress = new AppExpress();
 
 // Simple GET route
-appExpress.get('/', (request, response) => {
-  response.send('Welcome to AppExpress!');
-});
+// appExpress.get('/', (request, response) => {
+//   response.send('Welcome to AppExpress!');
+// });
 
 // JSON response
-appExpress.post('/hello', (request, response) => {
-  response.json({ message: 'Hello World' });
-});
+// appExpress.post('/hello', (request, response) => {
+//   response.json({ message: 'Hello World' });
+// });
 
-export default async (context) => await appExpress.attach(context);
+// export default async (context) => await appExpress.attach(context);
 
 
 // This Appwrite function will be executed every time your function is triggered
-// export default async ({ req, res, log, error }) => {
-//   // You can use the Appwrite SDK to interact with other services
-//   // For this example, we're using the Users service
-//   // const client = new Client()
-//   //   .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)
-//   //   .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-//   //   .setKey(req.headers['x-appwrite-key'] ?? '');
-//   // const users = new Users(client);
+export default async ({ req, res, log, error }) => {
+  // You can use the Appwrite SDK to interact with other services
+  // For this example, we're using the Users service
+  // const client = new Client()
+  //   .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)
+  //   .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
+  //   .setKey(req.headers['x-appwrite-key'] ?? '');
+  // const users = new Users(client);
 
-//   try {
-//     log('AKO OVO NE RADI JA NE ZNAM');
-//     log(JSON.stringify(req.bodyJson));
-//   } catch (error) {
-//     log('ERROR');
-//     log(error.message);
-//   }
+  try {
+    log('AKO OVO NE RADI JA NE ZNAM');
+    log(JSON.stringify(req.bodyJson));
+  } catch (error) {
+    log('ERROR');
+    log(error.message);
+  }
 
-//   if (req.path == '/graphql') {
-//     try {
-//       [
-//         'body',
-//         'bodyRaw',
-//         'bodyText',
-//         'bodyJson',
-//         'bodyBinary',
-//         'headers',
-//         'method',
-//         'host',
-//         'scheme',
-//         'query',
-//         'queryString',
-//         'port',
-//         'url',
-//         'path',
-//       ].forEach((key) => {
-//         log('LOGGING TYPEOF');
-//         try {
-//           log(`typeof req[${key}]: ${typeof req[key]}`);
-//         } catch (error) {
-//           log('ERROR');
-//           log(`Error logging typeof ${key}`);
-//           log('------------------------');
-//           return;
-//         }
-//         if (typeof req[key] === 'object') {
-//           log('OBJECT');
-//           log(`req[${key}]: ${Object.keys(req[key])}`);
-//         } else {
-//           if (typeof req[key] === 'string') {
-//             log(`LENGTH: ${req[key].length}`);
-//           }
-//           try {
-//             log(`${key}: ${req[key]}`);
-//           } catch (error) {
-//             log('ERROR');
-//             log(`Error logging ${key}`);
-//             log('------------------------');
-//             return;
-//           }
-//         }
-//         log('------------------------');
-//       });
+  if (req.path == '/graphql') {
+    try {
+      [
+        'body',
+        'bodyRaw',
+        'bodyText',
+        'bodyJson',
+        'bodyBinary',
+        'headers',
+        'method',
+        'host',
+        'scheme',
+        'query',
+        'queryString',
+        'port',
+        'url',
+        'path',
+      ].forEach((key) => {
+        log('LOGGING TYPEOF');
+        try {
+          log(`typeof req[${key}]: ${typeof req[key]}`);
+        } catch (error) {
+          log('ERROR');
+          log(`Error logging typeof ${key}`);
+          log('------------------------');
+          return;
+        }
+        if (typeof req[key] === 'object') {
+          log('OBJECT');
+          log(`req[${key}]: ${Object.keys(req[key])}`);
+        } else {
+          if (typeof req[key] === 'string') {
+            log(`LENGTH: ${req[key].length}`);
+          }
+          try {
+            log(`${key}: ${req[key]}`);
+          } catch (error) {
+            log('ERROR');
+            log(`Error logging ${key}`);
+            log('------------------------');
+            return;
+          }
+        }
+        log('------------------------');
+      });
 
-//       const { query, variables } = JSON.parse(req.body);
+      const { query, variables } = JSON.parse(req.body);
 
-//       log(query);
+      log(query);
 
-//       const result = await graphql({
-//         schema: importSchema(),
-//         source: query,
-//         rootValue: resolvers,
-//         variableValues: variables,
-//       });
+      const result = await graphql({
+        schema: importSchema(),
+        source: query,
+        rootValue: resolvers,
+        variableValues: variables,
+      });
 
-//       log('Success');
-//       log('STRINGIFIED RESULT');
-//       log(JSON.stringify(result));
-//       return res.json(result, 200);
-//     } catch (error) {
-//       logError('Error');
-//       logError(error);
-//       return res.json({ error: 'Invalid GraphQL query' }, 200);
-//     }
-//   } else {
-//     // Send a response to the user
-//     res.status(200).json({ message: 'Hello from Appwrite!' });
-//   }
-// };
+      log('Success');
+      log('STRINGIFIED RESULT');
+      log(JSON.stringify(result));
+      return res.json(result, 200);
+    } catch (error) {
+      logError('Error');
+      logError(error);
+      return res.json({ error: 'Invalid GraphQL query' }, 200);
+    }
+  } else {
+    // Send a response to the user
+    res.status(200).json({ message: 'Hello from Appwrite!' });
+  }
+};
