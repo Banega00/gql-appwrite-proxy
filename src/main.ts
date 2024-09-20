@@ -1,9 +1,7 @@
-import { graphql } from 'graphql';
+import { graphql, parse } from 'graphql';
 import { resolvers } from './resolvers.js';
 import { importSchema } from './schema.js';
 import { Context } from './types.js';
-import { appwriteService } from './appwrite-service.js';
-
 // const appExpress = new AppExpress();
 
 // Simple GET route
@@ -31,16 +29,15 @@ export default async (context: Context) => {
 
   try {
     const { query, variables } = req.body;
-
+    // console.log(typeof query);
+    // console.log(parsedQuery);
     const result = await graphql({
       schema: importSchema(),
       source: query,
       rootValue: resolvers,
       variableValues: variables,
+      contextValue: { req, res, log, error },
     });
-
-    log(appwriteService.test());
-
     return res.json(result, 200);
   } catch (error: any) {
     log('Invalid Graphql query');

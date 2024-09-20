@@ -1,0 +1,19 @@
+{
+  "projectId": "669116180030276bd53e",
+  "functions": [
+    {
+      "$id": "66e9545500198fad2609",
+      "name": "GQLProxy",
+      "runtime": "node-18.0",
+      "execute": [],
+      "events": [],
+      "schedule": "",
+      "timeout": 15,
+      "enabled": true,
+      "logging": true,
+      "entrypoint": "dist/main.js",
+      "commands": ["npm install && npx tsc"],
+      "path": "gql-appwrite-proxy"
+    }
+  ]
+}

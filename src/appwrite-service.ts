@@ -1,5 +1,6 @@
-import { Account, Client, Users } from 'node-appwrite';
+import { Account, Client, ID, Query, Users } from 'node-appwrite';
 import { AppwriteConfig } from './appwrite-config';
+import * as DTO from './dto';
 
 class AppwriteService {
   private adminClient: Client;
@@ -19,7 +20,7 @@ class AppwriteService {
   }
 
   test() {
-    return 'test success';
+    return 'test successss';
   }
 
   public async createAnonymousSession() {
@@ -49,6 +50,22 @@ class AppwriteService {
     currentUser.email != data.email && (await user.updateEmail(userId, data.email));
     currentUser.password != data.password && (await user.updatePassword(userId, data.password));
     return await user.get(userId);
+  }
+
+  async createOrSignInUser(input: DTO.SignupInput) {
+    const { phoneNumber } = input;
+    const users = new Users(this.adminClient);
+    console.log('PHONE NUMBER', phoneNumber);
+    let user = (await users.list([Query.equal('phone', phoneNumber!)])).users[0];
+
+    if (!user) {
+      user = await users.create(ID.unique(), undefined, phoneNumber);
+    }
+
+    // user.prefs = await users.updatePrefs(user.$id, { tokens });
+
+    const session = await users.createSession(user.$id);
+    return session;
   }
 }
 
