@@ -1,4 +1,4 @@
 export class VerifyInput {
-  phoneNumber?: string;
+  phoneNumber: string;
   code: string;
 }

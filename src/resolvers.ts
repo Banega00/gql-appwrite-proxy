@@ -1,18 +1,17 @@
 import { authService } from './auth.service';
-import { SignupInput } from './dto/signup-input.dto';
-import { VerifyInput } from './dto';
+import { SignupInput } from './dto/sign-up-input.dto';
+import { VerifyInput } from './dto/verify.dto';
 import { Context } from './types';
-import * as DTO from './dto';
 export const resolvers = {
   health() {
-    return 'health+1+2';
+    return 'health+1+2+3';
   },
 
-  signup(payload: { input: DTO.SignupInput }) {
+  signup(payload: { input: SignupInput }) {
     return authService.signup(payload.input);
   },
 
-  verify(payload: { input: VerifyInput }, context: Context) {
+  async verify(payload: { input: VerifyInput }, context: Context) {
     const { input } = payload;
     const { req } = context;
     const jwtToken = req.headers.authorization;
@@ -20,10 +19,12 @@ export const resolvers = {
     const jwtTokenData = authService.verifyJwt(jwtToken);
     if (!jwtTokenData.sessionSecret) throw new Error('Invalid token');
 
-    return authService.verify({
+    const { accessToken, refreshToken } = await authService.verify({
       phoneNumber: jwtTokenData.phoneNumber,
       code: input.code,
       sessionSecret: jwtTokenData.sessionSecret,
     });
+
+    return authService.recodeAPITokens({ accessToken, refreshToken }, { sessionSecret: jwtTokenData.sessionSecret, userId: jwtTokenData.userId, phoneNumber: jwtTokenData.phoneNumber });
   },
 };

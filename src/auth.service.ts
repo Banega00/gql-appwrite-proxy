@@ -1,23 +1,45 @@
 import { apiServerService } from './api-server.service';
 import { appwriteService } from './appwrite-service';
-import * as DTO from './dto';
 import * as jwt from 'jsonwebtoken';
 import { Context } from './types';
 import { GraphQLError } from 'graphql';
 import { handleGraphQLErrorsFromAPI } from './helpers';
+import { VerifyResponse } from '../../src/auth/dto/verify-response.dto';
+import { SignupResponse } from '../../src/auth/dto/sign-up-response.dto';
+import { SignupInput } from '../../src/auth/dto/sign-up-input.dto';
 
-export interface MyJWTPayload {
+export interface ProxyJWTPayload {
   sessionSecret: string;
   userId: string;
   phoneNumber: string;
 }
+
+export interface APIAccessTokenData {
+  userId: string;
+  phoneNumber: string;
+  groupId?: string;
+  venuesId?: string[];
+  exp: number;
+}
 export class AuthService {
+  recodeAPITokens(apiTokens: { accessToken: string; refreshToken: string }, proxyTokenData: ProxyJWTPayload) {
+    const apiAccessTokenData = jwt.decode(apiTokens.accessToken) as any;
+
+    const payloadForTokens = {
+      ...proxyTokenData,
+      exp: apiAccessTokenData.exp,
+      iat: apiAccessTokenData.iat,
+      ...apiAccessTokenData,
+    };
+
+    return this.createTokens(payloadForTokens);
+  }
   constructor() {}
 
-  async signup(input: DTO.SignupInput) {
+  async signup(input: SignupInput) {
     const session = await appwriteService.createOrSignInUser(input);
 
-    const responseData = await apiServerService.sendPostGraphQLRequest({
+    const responseData = await apiServerService.sendPostGraphQLRequest<{ signup: SignupResponse }>({
       query: `mutation Signup {
         signup(input: { phoneNumber: "${input.phoneNumber}" }) {
             accessToken
@@ -40,8 +62,8 @@ export class AuthService {
 
   async verify(obj: { phoneNumber: string; code: string; sessionSecret: string }) {
     const { phoneNumber, code, sessionSecret } = obj;
-    console.log('SALJEM VERIFY ZAHTEV');
-    const responseData = await apiServerService.sendPostGraphQLRequest({
+
+    const responseData = await apiServerService.sendPostGraphQLRequest<{ verify: VerifyResponse }>({
       query: `mutation Verify {
       verify(input: { phoneNumber: "${phoneNumber}", code: "${code}" }) {
           accessToken
@@ -85,7 +107,7 @@ export class AuthService {
     const splitted = jwtToken.split(' ');
     const token = splitted[1] ?? splitted[0];
     try {
-      const data: MyJWTPayload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as MyJWTPayload;
+      const data: ProxyJWTPayload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as ProxyJWTPayload;
       if (!data.sessionSecret) throw new Error('Invalid token');
       return data;
     } catch (error) {

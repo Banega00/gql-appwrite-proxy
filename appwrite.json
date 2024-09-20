@@ -13,7 +13,7 @@
       "logging": true,
       "entrypoint": "dist/main.js",
       "commands": ["npm install && npx tsc"],
-      "path": "gql-appwrite-proxy"
+      "path": "./"
     }
   ]
 }
