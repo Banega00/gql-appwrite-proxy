@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const graphql_1 = require("graphql");
 const resolvers_js_1 = require("./resolvers.js");
 const schema_js_1 = require("./schema.js");
-const appwrite_service_js_1 = require("./appwrite-service.js");
 // const appExpress = new AppExpress();
 // Simple GET route
 // appExpress.get('/', (request, response) => {
@@ -33,6 +32,7 @@ exports.default = (context) => __awaiter(void 0, void 0, void 0, function* () {
     //   .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
     //   .setKey(req.headers['x-appwrite-key'] ?? '');
     // const users = new Users(client);
+    const wrappedResolvers = (0, resolvers_js_1.wrapResolvers)(resolvers_js_1.resolvers);
     try {
         if (req.path === '/graphql') {
             const { query, variables } = req.body;
@@ -41,14 +41,13 @@ exports.default = (context) => __awaiter(void 0, void 0, void 0, function* () {
             const result = yield (0, graphql_1.graphql)({
                 schema: (0, schema_js_1.importSchema)(),
                 source: query,
-                rootValue: resolvers_js_1.resolvers,
+                rootValue: wrappedResolvers,
                 variableValues: variables,
                 contextValue: { req, res, log, error },
             });
             return res.json(result, 200);
         }
         else {
-            return res.json(yield appwrite_service_js_1.appwriteService.getUserFromJWT(req.headers.authorization), 200);
         }
     }
     catch (error) {

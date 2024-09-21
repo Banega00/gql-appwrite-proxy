@@ -11,7 +11,6 @@ import { RefreshTokensResponse } from './dto/refresh-token-response.dto';
 import { VenueDTO } from './dto/venue.dto';
 
 export interface ProxyJWTPayload {
-  session: string;
   userId: string;
   phoneNumber: string;
   groupId?: string;
@@ -29,17 +28,13 @@ export interface APIAccessTokenData {
 export class AuthService {
   decodeApiTokensData = (accessToken: string) => jwt.decode(accessToken) as APIAccessTokenData;
 
-  recodeAPITokensDataToProxyTokens(apiTokens: { accessToken: string; refreshToken: string }, proxyTokenData: ProxyJWTPayload) {
+  recodeAPITokensDataToProxyTokens(apiTokens: { accessToken: string; refreshToken: string }, proxyTokenData?: ProxyJWTPayload) {
     const apiAccessTokenData = this.decodeApiTokensData(apiTokens.accessToken);
 
     const payloadForTokens = {
-      ...proxyTokenData,
+      ...(proxyTokenData ?? {}),
       ...apiAccessTokenData,
     };
-
-    console.log('PROXY TOKEN DATA', proxyTokenData);
-
-    console.log('CREATING TOKENS WITH PAYLOAD', payloadForTokens);
 
     return this.createTokens(payloadForTokens);
   }
@@ -65,17 +60,16 @@ export class AuthService {
     handleGraphQLErrorsFromAPI(responseData);
 
     if (!responseData?.data?.signup) {
-      console.log(responseData);
       throw new Error('Error signing up');
     } else {
       const session = await appwriteService.createAnonymousSession();
-      const tokens = this.createTokens({ session: session.secret, phoneNumber: input.phoneNumber });
+      const tokens = this.createTokens({ userId: session.userId, phoneNumber: input.phoneNumber });
       return { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken, code: responseData.data.signup.code };
     }
   }
 
-  async verify(obj: { phoneNumber: string; code: string; session: string }) {
-    const { phoneNumber, code, session } = obj;
+  async verify(obj: { phoneNumber: string; code: string }) {
+    const { phoneNumber, code } = obj;
 
     const responseData = await apiServerService.sendPostGraphQLRequest<{ verify: VerifyResponse }>({
       query: `mutation Verify {
@@ -90,7 +84,6 @@ export class AuthService {
     handleGraphQLErrorsFromAPI(responseData);
 
     if (!responseData.data.verify) {
-      console.log(responseData);
       throw new Error('Error verifying');
     } else {
       return responseData.data.verify;
@@ -126,7 +119,7 @@ export class AuthService {
     const token = splitted[1] ?? splitted[0];
     try {
       const data: ProxyJWTPayload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as ProxyJWTPayload;
-      if (!data.session) throw new Error('Invalid token');
+      if (!data.userId) throw new Error('Invalid token');
       return data;
     } catch (error) {
       console.log(error);
@@ -139,7 +132,7 @@ export class AuthService {
     const splitted = jwtToken.split(' ');
     const token = splitted[1] ?? splitted[0];
     try {
-      const data: ProxyJWTPayload = jwt.verify(token, process.env.API_REFRESH_TOKEN_SECRET!) as ProxyJWTPayload;
+      const data: ProxyJWTPayload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET!) as ProxyJWTPayload;
       return data;
     } catch (error) {
       console.log(error);
@@ -161,6 +154,8 @@ export class AuthService {
       `Bearer ${refreshToken}`
     );
 
+    console.log('RESPONSE FROM SERVER: ', responseData);
+
     handleGraphQLErrorsFromAPI(responseData);
 
     if (!responseData.data.refreshTokens) {
@@ -170,33 +165,5 @@ export class AuthService {
       return responseData.data.refreshTokens;
     }
   }
-
-  async getVenuesForEmployeeOrGroup(accessToken: string) {
-    const responseData = await apiServerService.sendPostGraphQLRequest<{ venue: VenueDTO[] }>(
-      {
-        query: `query Venue {
-    venue {
-        id
-        name
-        address
-        createdAt
-        updatedAt
-    }
 }
-  `,
-      },
-      `Bearer ${accessToken}`
-    );
-
-    handleGraphQLErrorsFromAPI(responseData);
-
-    if (!responseData.data.venue) {
-      console.log(responseData);
-      throw new Error('Error getting venues');
-    } else {
-      return responseData.data.venue;
-    }
-  }
-}
-
 export const authService = new AuthService();

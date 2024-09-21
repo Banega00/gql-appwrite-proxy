@@ -42,6 +42,9 @@ class ApiServerService {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
+                if (authorization && !authorization.startsWith('Bearer')) {
+                    authorization = `Bearer ${authorization}`;
+                }
                 const response = yield (0, axios_1.default)(`${this.apiServerURL}/graphql`, {
                     method: 'POST',
                     headers: {

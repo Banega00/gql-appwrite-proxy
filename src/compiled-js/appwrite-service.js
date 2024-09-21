@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.appwriteService = void 0;
 const node_appwrite_1 = require("node-appwrite");
 const appwrite_config_1 = require("./appwrite-config");
-const auth_service_1 = require("./auth.service");
 class AppwriteService {
     constructor() {
         this.adminClient = new node_appwrite_1.Client();
@@ -31,21 +30,6 @@ class AppwriteService {
             const account = new node_appwrite_1.Account(this.adminClient);
             const anonymousSession = yield account.createAnonymousSession();
             return anonymousSession;
-        });
-    }
-    getUserFromJWT(authorization) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const jwtData = auth_service_1.authService.verifyJwt(authorization);
-            const user = yield this.getUserFromSession(jwtData.session);
-            return user;
-        });
-    }
-    getUserFromSession(sessionSecret) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const client = new node_appwrite_1.Client().setEndpoint(appwrite_config_1.AppwriteConfig.APPWRITE_ENDPOINT).setProject(appwrite_config_1.AppwriteConfig.APPWRITE_PROJECT_ID).setSession(sessionSecret);
-            const account = new node_appwrite_1.Account(client);
-            const user = yield account.get();
-            return user;
         });
     }
     createSessionForUser(userId) {
@@ -71,19 +55,17 @@ class AppwriteService {
             const users = new node_appwrite_1.Users(this.adminClient);
             let user = (yield users.list([node_appwrite_1.Query.equal('phone', phoneNumber)])).users[0];
             if (!user) {
-                user = yield users.create(userId !== null && userId !== void 0 ? userId : node_appwrite_1.ID.unique(), undefined, phoneNumber);
+                user = yield users.create(userId ? node_appwrite_1.ID.custom(userId) : node_appwrite_1.ID.unique(), undefined, phoneNumber);
             }
             // user.prefs = await users.updatePrefs(user.$id, { tokens });
             const session = yield users.createSession(user.$id);
             return session;
         });
     }
-    createOrUpdateUserFromSession(userId, sessionSecret, phoneNumber) {
+    createOrUpdateUser(userId, phoneNumber) {
         return __awaiter(this, void 0, void 0, function* () {
-            const client = new node_appwrite_1.Client().setEndpoint(appwrite_config_1.AppwriteConfig.APPWRITE_ENDPOINT).setProject(appwrite_config_1.AppwriteConfig.APPWRITE_PROJECT_ID).setSession(sessionSecret);
-            const account = new node_appwrite_1.Account(client);
-            const user = yield account.get();
             const users = new node_appwrite_1.Users(this.adminClient);
+            const user = yield users.get(userId);
             if (!user) {
                 throw new Error('User not found');
             }
@@ -94,42 +76,26 @@ class AppwriteService {
                 if (existingUser) {
                     if (existingUser.$id != userId) {
                         yield users.delete(existingUser.$id);
-                        const newUser = yield users.create(userId, undefined, phoneNumber);
-                        const sess = yield users.createSession(newUser.$id);
-                        console.log('SESSION CREATED FOR NEW USER', sess);
-                        return sess;
+                        const newUser = yield users.create(node_appwrite_1.ID.custom(userId), undefined, phoneNumber);
+                        return newUser;
                     }
                     else {
-                        //everything ok get new session
-                        console.log('CREATING NEW SESSION FOR USER WITH ID', existingUser.$id);
-                        const sess = yield users.createSession(existingUser.$id);
-                        console.log('SESSION CREATED FOR NEW USER', sess);
-                        return sess;
+                        return user;
                     }
                 }
                 else {
-                    const newUser = yield users.create(userId, undefined, phoneNumber);
-                    return users.createSession(newUser.$id);
+                    const newUser = yield users.create(node_appwrite_1.ID.custom(userId), undefined, phoneNumber);
+                    return newUser;
                 }
             }
             else {
                 //update user
-                user.phone = phoneNumber;
-                yield users.updatePhone(userId, phoneNumber); //create new session
-                return users.createSession(user.$id);
+                if (user.phone != phoneNumber) {
+                    user.phone = phoneNumber;
+                    yield users.updatePhone(userId, phoneNumber); //create new session
+                }
+                return user;
             }
-        });
-    }
-    checkUserSession(sessionSecret) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('SESSION SECRET IS', sessionSecret);
-            const client = new node_appwrite_1.Client().setEndpoint(appwrite_config_1.AppwriteConfig.APPWRITE_ENDPOINT).setProject(appwrite_config_1.AppwriteConfig.APPWRITE_PROJECT_ID).setSession(sessionSecret);
-            const account = new node_appwrite_1.Account(client);
-            const user = yield account.get();
-            if (!user) {
-                throw new Error('Invalid appwrite session');
-            }
-            return true;
         });
     }
 }

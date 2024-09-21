@@ -40,9 +40,7 @@ const helpers_1 = require("./helpers");
 class AuthService {
     recodeAPITokensDataToProxyTokens(apiTokens, proxyTokenData) {
         const apiAccessTokenData = this.decodeApiTokensData(apiTokens.accessToken);
-        const payloadForTokens = Object.assign(Object.assign({}, proxyTokenData), apiAccessTokenData);
-        console.log('PROXY TOKEN DATA', proxyTokenData);
-        console.log('CREATING TOKENS WITH PAYLOAD', payloadForTokens);
+        const payloadForTokens = Object.assign(Object.assign({}, (proxyTokenData !== null && proxyTokenData !== void 0 ? proxyTokenData : {})), apiAccessTokenData);
         return this.createTokens(payloadForTokens);
     }
     recodeProxyTokensDataToAPITokens(proxyTokensData) {
@@ -66,19 +64,18 @@ class AuthService {
             });
             (0, helpers_1.handleGraphQLErrorsFromAPI)(responseData);
             if (!((_a = responseData === null || responseData === void 0 ? void 0 : responseData.data) === null || _a === void 0 ? void 0 : _a.signup)) {
-                console.log(responseData);
                 throw new Error('Error signing up');
             }
             else {
                 const session = yield appwrite_service_1.appwriteService.createAnonymousSession();
-                const tokens = this.createTokens({ session: session.secret, phoneNumber: input.phoneNumber });
+                const tokens = this.createTokens({ userId: session.userId, phoneNumber: input.phoneNumber });
                 return { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken, code: responseData.data.signup.code };
             }
         });
     }
     verify(obj) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { phoneNumber, code, session } = obj;
+            const { phoneNumber, code } = obj;
             const responseData = yield api_server_service_1.apiServerService.sendPostGraphQLRequest({
                 query: `mutation Verify {
       verify(input: { phoneNumber: "${phoneNumber}", code: "${code}" }) {
@@ -90,7 +87,6 @@ class AuthService {
             });
             (0, helpers_1.handleGraphQLErrorsFromAPI)(responseData);
             if (!responseData.data.verify) {
-                console.log(responseData);
                 throw new Error('Error verifying');
             }
             else {
@@ -124,7 +120,7 @@ class AuthService {
         const token = (_a = splitted[1]) !== null && _a !== void 0 ? _a : splitted[0];
         try {
             const data = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-            if (!data.session)
+            if (!data.userId)
                 throw new Error('Invalid token');
             return data;
         }
@@ -139,7 +135,7 @@ class AuthService {
         const splitted = jwtToken.split(' ');
         const token = (_a = splitted[1]) !== null && _a !== void 0 ? _a : splitted[0];
         try {
-            const data = jwt.verify(token, process.env.API_REFRESH_TOKEN_SECRET);
+            const data = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
             return data;
         }
         catch (error) {
@@ -158,6 +154,7 @@ class AuthService {
   }
   `,
             }, `Bearer ${refreshToken}`);
+            console.log('RESPONSE FROM SERVER: ', responseData);
             (0, helpers_1.handleGraphQLErrorsFromAPI)(responseData);
             if (!responseData.data.refreshTokens) {
                 console.log(responseData);
@@ -165,30 +162,6 @@ class AuthService {
             }
             else {
                 return responseData.data.refreshTokens;
-            }
-        });
-    }
-    getVenuesForEmployeeOrGroup(accessToken) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const responseData = yield api_server_service_1.apiServerService.sendPostGraphQLRequest({
-                query: `query Venue {
-    venue {
-        id
-        name
-        address
-        createdAt
-        updatedAt
-    }
-}
-  `,
-            }, `Bearer ${accessToken}`);
-            (0, helpers_1.handleGraphQLErrorsFromAPI)(responseData);
-            if (!responseData.data.venue) {
-                console.log(responseData);
-                throw new Error('Error getting venues');
-            }
-            else {
-                return responseData.data.venue;
             }
         });
     }

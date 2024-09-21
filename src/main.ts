@@ -1,5 +1,5 @@
 import { graphql, parse } from 'graphql';
-import { resolvers } from './resolvers.js';
+import { resolvers, wrapResolvers } from './resolvers.js';
 import { importSchema } from './schema.js';
 import { Context } from './types.js';
 import { appwriteService } from './appwrite-service.js';
@@ -27,7 +27,7 @@ export default async (context: Context) => {
   //   .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
   //   .setKey(req.headers['x-appwrite-key'] ?? '');
   // const users = new Users(client);
-
+  const wrappedResolvers = wrapResolvers(resolvers);
   try {
     if (req.path === '/graphql') {
       const { query, variables } = req.body;
@@ -36,13 +36,12 @@ export default async (context: Context) => {
       const result = await graphql({
         schema: importSchema(),
         source: query,
-        rootValue: resolvers,
+        rootValue: wrappedResolvers,
         variableValues: variables,
         contextValue: { req, res, log, error },
       });
       return res.json(result, 200);
     } else {
-      return res.json(await appwriteService.getUserFromJWT(req.headers.authorization), 200);
     }
   } catch (error: any) {
     log('Invalid Graphql query');

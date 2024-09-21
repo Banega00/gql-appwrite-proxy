@@ -8,6 +8,9 @@ export class ApiServerService {
 
   async sendPostGraphQLRequest<T = any>(query: any, authorization?: string): Promise<{ data: T; errors: any }> {
     try {
+      if (authorization && !authorization.startsWith('Bearer')) {
+        authorization = `Bearer ${authorization}`;
+      }
       const response = await axios(`${this.apiServerURL}/graphql`, {
         method: 'POST',
         headers: {
