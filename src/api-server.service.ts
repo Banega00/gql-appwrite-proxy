@@ -1,11 +1,14 @@
 import axios, { isAxiosError } from 'axios';
 
 export class ApiServerService {
-  constructor() {}
+  private apiServerURL: string;
+  constructor() {
+    this.apiServerURL = process.env.API_SERVER_URL || 'http://localhost:4000';
+  }
 
-  async sendPostGraphQLRequest(query: any, authorization?: string) {
+  async sendPostGraphQLRequest<T = any>(query: any, authorization?: string): Promise<{ data: T; errors: any }> {
     try {
-      const response = await axios('https://4190-87-116-166-28.ngrok-free.app/graphql', {
+      const response = await axios(`${this.apiServerURL}/graphql`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

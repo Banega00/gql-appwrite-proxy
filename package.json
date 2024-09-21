@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
+    "build": "tsc --outDir src/compiled-js",
     "format": "prettier --write ."
   },
   "dependencies": {

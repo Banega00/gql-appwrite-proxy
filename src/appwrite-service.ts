@@ -1,6 +1,7 @@
 import { Account, Client, ID, Query, Users } from 'node-appwrite';
 import { AppwriteConfig } from './appwrite-config';
-import * as DTO from './dto';
+import { SignupInput } from './dto/sign-up-input.dto';
+import { authService } from './auth.service';
 
 class AppwriteService {
   private adminClient: Client;
@@ -8,7 +9,6 @@ class AppwriteService {
 
   constructor() {
     this.adminClient = new Client();
-    this.account = new Account(this.adminClient);
 
     const { APPWRITE_ENDPOINT, APPWRITE_API_KEY, APPWRITE_PROJECT_ID } = AppwriteConfig;
 
@@ -17,6 +17,7 @@ class AppwriteService {
     }
 
     this.adminClient = this.adminClient.setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT_ID).setKey(APPWRITE_API_KEY);
+    this.account = new Account(this.adminClient);
   }
 
   test() {
@@ -30,15 +31,26 @@ class AppwriteService {
     return anonymousSession;
   }
 
-  async getUserFromSessionSecret(secret: string) {
-    const { APPWRITE_ENDPOINT, APPWRITE_API_KEY, APPWRITE_PROJECT_ID } = AppwriteConfig;
+  async getUserFromJWT(authorization: string) {
+    const jwtData = authService.verifyJwt(authorization);
 
-    const sessionClient = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT_ID!);
+    const user = await this.getUserFromSession(jwtData.session);
+    return user;
+  }
 
-    sessionClient.setSession(secret);
-    const account = new Account(sessionClient);
-    const currentUser = await account.get();
-    return currentUser;
+  async getUserFromSession(sessionSecret: string) {
+    const client = new Client().setEndpoint(AppwriteConfig.APPWRITE_ENDPOINT).setProject(AppwriteConfig.APPWRITE_PROJECT_ID!).setSession(sessionSecret);
+
+    const account = new Account(client);
+
+    const user = await account.get();
+    return user;
+  }
+
+  async createSessionForUser(userId: string) {
+    const users = new Users(this.adminClient);
+    const session = await users.createSession(userId);
+    return session;
   }
 
   async updateUser(userId: string, data: { email: string; password: string; name: string }) {
@@ -52,20 +64,71 @@ class AppwriteService {
     return await user.get(userId);
   }
 
-  async createOrSignInUser(input: DTO.SignupInput) {
+  async createOrSignInUser(input: SignupInput, userId?: string) {
     const { phoneNumber } = input;
     const users = new Users(this.adminClient);
-    console.log('PHONE NUMBER', phoneNumber);
     let user = (await users.list([Query.equal('phone', phoneNumber!)])).users[0];
 
     if (!user) {
-      user = await users.create(ID.unique(), undefined, phoneNumber);
+      user = await users.create(userId ?? ID.unique(), undefined, phoneNumber);
     }
 
     // user.prefs = await users.updatePrefs(user.$id, { tokens });
 
     const session = await users.createSession(user.$id);
+
     return session;
+  }
+
+  async createOrUpdateUserFromSession(userId: string, sessionSecret: string, phoneNumber: string) {
+    const client = new Client().setEndpoint(AppwriteConfig.APPWRITE_ENDPOINT).setProject(AppwriteConfig.APPWRITE_PROJECT_ID!).setSession(sessionSecret);
+    const account = new Account(client);
+    const user = await account.get();
+
+    const users = new Users(this.adminClient);
+
+    if (!user) {
+      throw new Error('User not found');
+    } else if (user.$id != userId) {
+      //delete old anonymous user
+      await users.delete(user.$id);
+      const [existingUser] = (await users.list([Query.equal('phone', phoneNumber)])).users;
+      if (existingUser) {
+        if (existingUser.$id != userId) {
+          await users.delete(existingUser.$id);
+
+          const newUser = await users.create(userId, undefined, phoneNumber);
+          const sess = await users.createSession(newUser.$id);
+          console.log('SESSION CREATED FOR NEW USER', sess);
+          return sess;
+        } else {
+          //everything ok get new session
+          console.log('CREATING NEW SESSION FOR USER WITH ID', existingUser.$id);
+          const sess = await users.createSession(existingUser.$id);
+          console.log('SESSION CREATED FOR NEW USER', sess);
+          return sess;
+        }
+      } else {
+        const newUser = await users.create(userId, undefined, phoneNumber);
+        return users.createSession(newUser.$id);
+      }
+    } else {
+      //update user
+      user.phone = phoneNumber;
+      await users.updatePhone(userId, phoneNumber); //create new session
+      return users.createSession(user.$id);
+    }
+  }
+
+  async checkUserSession(sessionSecret: string) {
+    console.log('SESSION SECRET IS', sessionSecret);
+    const client = new Client().setEndpoint(AppwriteConfig.APPWRITE_ENDPOINT).setProject(AppwriteConfig.APPWRITE_PROJECT_ID!).setSession(sessionSecret);
+    const account = new Account(client);
+    const user = await account.get();
+    if (!user) {
+      throw new Error('Invalid appwrite session');
+    }
+    return true;
   }
 }
 

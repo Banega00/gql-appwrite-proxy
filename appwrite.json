@@ -11,8 +11,8 @@
       "timeout": 15,
       "enabled": true,
       "logging": true,
-      "entrypoint": "dist/main.js",
-      "commands": ["npm install && npx tsc"],
+      "entrypoint": "src/compiled-js/main.js",
+      "commands": ["npm install && npx tsc --outDir src/compiled-js"],
       "path": "./"
     }
   ]

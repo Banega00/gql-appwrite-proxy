@@ -2,6 +2,7 @@ import { graphql, parse } from 'graphql';
 import { resolvers } from './resolvers.js';
 import { importSchema } from './schema.js';
 import { Context } from './types.js';
+import { appwriteService } from './appwrite-service.js';
 // const appExpress = new AppExpress();
 
 // Simple GET route
@@ -28,19 +29,24 @@ export default async (context: Context) => {
   // const users = new Users(client);
 
   try {
-    const { query, variables } = req.body;
-    // console.log(typeof query);
-    // console.log(parsedQuery);
-    const result = await graphql({
-      schema: importSchema(),
-      source: query,
-      rootValue: resolvers,
-      variableValues: variables,
-      contextValue: { req, res, log, error },
-    });
-    return res.json(result, 200);
+    if (req.path === '/graphql') {
+      const { query, variables } = req.body;
+      // console.log(typeof query);
+      // console.log(parsedQuery);
+      const result = await graphql({
+        schema: importSchema(),
+        source: query,
+        rootValue: resolvers,
+        variableValues: variables,
+        contextValue: { req, res, log, error },
+      });
+      return res.json(result, 200);
+    } else {
+      return res.json(await appwriteService.getUserFromJWT(req.headers.authorization), 200);
+    }
   } catch (error: any) {
     log('Invalid Graphql query');
+    console.log(error);
     return res.json({ error: error.message }, 500);
   }
 };
