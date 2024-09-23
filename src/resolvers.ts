@@ -70,6 +70,10 @@ export const wrapResolvers = (resolvers: any) => {
 };
 
 export const resolvers = {
+  health() {
+    return 'ok';
+  },
+
   signup(payload: { input: SignupInput }) {
     return authService.signup(payload.input);
   },
