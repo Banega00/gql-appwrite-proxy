@@ -2,104 +2,8 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type VenueDTO {
-  """Unique identifier of a venue"""
-  id: String!
-
-  """Name of a venue"""
+type OperatorDTO {
   name: String!
-
-  """Address of a venue"""
-  address: String!
-
-  """Creation date of a venue"""
-  createdAt: DateTime!
-
-  """Last update of a venue"""
-  updatedAt: DateTime!
-
-  """Employees of a venue"""
-  users: [PartialUserDTO!]
-
-  """Group of a venue"""
-  group: PartialGroupDTO
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
-type PartialVenueDTO {
-  """Unique identifier of a venue"""
-  id: String
-
-  """Name of a venue"""
-  name: String
-
-  """Address of a venue"""
-  address: String
-
-  """Creation date of a venue"""
-  createdAt: DateTime
-
-  """Last update of a venue"""
-  updatedAt: DateTime
-
-  """Employees of a venue"""
-  users: [PartialUserDTO!]
-
-  """Group of a venue"""
-  group: PartialGroupDTO
-}
-
-type GroupDTO {
-  """Unique identifier of a group"""
-  id: String!
-
-  """Name of a group"""
-  name: String!
-
-  """Description of a group"""
-  description: String
-
-  """Creation date of a group"""
-  createdAt: DateTime!
-
-  """Last update of a group"""
-  updatedAt: DateTime!
-
-  """Users of a group"""
-  users: [PartialUserDTO!]
-
-  """Venues of a group"""
-  venues: [PartialVenueDTO!]
-}
-
-type PartialGroupDTO {
-  """Unique identifier of a group"""
-  id: String
-
-  """Name of a group"""
-  name: String
-
-  """Description of a group"""
-  description: String
-
-  """Creation date of a group"""
-  createdAt: DateTime
-
-  """Last update of a group"""
-  updatedAt: DateTime
-
-  """Users of a group"""
-  users: [PartialUserDTO!]
-
-  """Venues of a group"""
-  venues: [PartialVenueDTO!]
-}
-
-type UserDTO {
   id: String!
   phoneNumber: String!
   createdAt: DateTime!
@@ -107,14 +11,19 @@ type UserDTO {
   updatedAt: DateTime!
   hashedRefreshToken: String
 
-  """Groups of a user"""
+  """
+  Groups of a user
+  """
   groups: [PartialGroupDTO!]
-
-  """Venues of a user"""
-  venues: [PartialVenueDTO!]
 }
 
-type PartialUserDTO {
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type PartialOperatorDTO {
+  name: String
   id: String
   phoneNumber: String
   createdAt: DateTime
@@ -122,14 +31,196 @@ type PartialUserDTO {
   updatedAt: DateTime
   hashedRefreshToken: String
 
-  """Groups of a user"""
+  """
+  Groups of a user
+  """
   groups: [PartialGroupDTO!]
+}
 
-  """Venues of a user"""
+type EmployeeDTO {
+  name: String!
+  id: String!
+  phoneNumber: String!
+  createdAt: DateTime!
+  externalId: String!
+  updatedAt: DateTime!
+  hashedRefreshToken: String
+
+  """
+  Employees of a user
+  """
   venues: [PartialVenueDTO!]
 }
 
-type SignResponse {
+type PartialEmployeeDTO {
+  name: String
+  id: String
+  phoneNumber: String
+  createdAt: DateTime
+  externalId: String
+  updatedAt: DateTime
+  hashedRefreshToken: String
+
+  """
+  Employees of a user
+  """
+  venues: [PartialVenueDTO!]
+}
+
+type VenueDTO {
+  """
+  Unique identifier of a venue
+  """
+  id: String!
+
+  """
+  Name of a venue
+  """
+  name: String!
+
+  """
+  Address of a venue
+  """
+  address: String!
+
+  """
+  Creation date of a venue
+  """
+  createdAt: DateTime!
+
+  """
+  Last update of a venue
+  """
+  updatedAt: DateTime!
+
+  """
+  Employees of a venue
+  """
+  employees: [PartialEmployeeDTO!]
+
+  """
+  Group of a venue
+  """
+  group: PartialGroupDTO
+}
+
+type PartialVenueDTO {
+  """
+  Unique identifier of a venue
+  """
+  id: String
+
+  """
+  Name of a venue
+  """
+  name: String
+
+  """
+  Address of a venue
+  """
+  address: String
+
+  """
+  Creation date of a venue
+  """
+  createdAt: DateTime
+
+  """
+  Last update of a venue
+  """
+  updatedAt: DateTime
+
+  """
+  Employees of a venue
+  """
+  employees: [PartialEmployeeDTO!]
+
+  """
+  Group of a venue
+  """
+  group: PartialGroupDTO
+}
+
+type GroupDTO {
+  """
+  Unique identifier of a group
+  """
+  id: String!
+
+  """
+  Name of a group
+  """
+  name: String!
+
+  """
+  Description of a group
+  """
+  description: String
+
+  """
+  Creation date of a group
+  """
+  createdAt: DateTime!
+
+  """
+  Last update of a group
+  """
+  updatedAt: DateTime!
+
+  """
+  Operators of a group
+  """
+  operators: [PartialOperatorDTO!]
+
+  """
+  Venues of a group
+  """
+  venues: [PartialVenueDTO!]
+}
+
+type PartialGroupDTO {
+  """
+  Unique identifier of a group
+  """
+  id: String
+
+  """
+  Name of a group
+  """
+  name: String
+
+  """
+  Description of a group
+  """
+  description: String
+
+  """
+  Creation date of a group
+  """
+  createdAt: DateTime
+
+  """
+  Last update of a group
+  """
+  updatedAt: DateTime
+
+  """
+  Operators of a group
+  """
+  operators: [PartialOperatorDTO!]
+
+  """
+  Venues of a group
+  """
+  venues: [PartialVenueDTO!]
+}
+
+type FindAllGroupsOfOperatorResponseDTO {
+  groups: [GroupDTO!]!
+  total: Float!
+}
+
+type SignupResponse {
   accessToken: String
   refreshToken: String
   code: String
@@ -143,24 +234,26 @@ type VerifyResponse {
 type RefreshTokensResponse {
   accessToken: String!
   refreshToken: String!
-  user: UserDTO!
+  userId: String!
 }
 
 type Query {
   health: String!
-  user: UserDTO
-  users: [UserDTO!]!
-  findAllGroupsOfUser(id: String!): [GroupDTO!]!
-  findAllVenuesOfUser(id: String!): [VenueDTO!]!
   group: [GroupDTO!]!
   groupById(id: String!): GroupDTO!
   findAllVenuesOfGroup(id: String!): [VenueDTO!]!
+  operators: [OperatorDTO!]!
+  operator(id: String!): OperatorDTO!
+  findAllGroupsOfOperator(id: String!): FindAllGroupsOfOperatorResponseDTO!
   venue: [VenueDTO!]!
   venueById(id: String!): VenueDTO!
+  employees: [EmployeeDTO!]!
+  employee(id: String!): EmployeeDTO!
+  findAllVenuesOfEmployee(id: String!): [VenueDTO!]!
 }
 
 type Mutation {
-  signup(input: SignupInput!): SignResponse!
+  signup(input: SignupInput!): SignupResponse!
   verify(input: VerifyInput!): VerifyResponse!
   switchGroup(input: SwitchGroupInput!): VerifyResponse!
   selectVenues(input: SelectVenuesInput!): VerifyResponse!
@@ -168,21 +261,37 @@ type Mutation {
   createGroup(createGroupInput: CreateGroupInput!): GroupDTO!
   updateGroup(updateGroupInput: UpdateGroupInput!): GroupDTO!
   removeGroup(id: String!): GroupDTO!
-  addUserToGroup(groupId: String!, userId: String!): GroupDTO!
   addVenueToGroup(groupId: String!, venueId: String!): GroupDTO!
+  addOperatorToGroup(groupId: String!, operatorId: String!): GroupDTO!
+  createOperator(createOperatorInput: CreateOperatorInput!): OperatorDTO!
+  updateOperator(updateOperatorInput: UpdateOperatorInput!): OperatorDTO!
+  removeOperator(id: Int!): OperatorDTO!
   createVenue(createVenueInput: CreateVenueInput!): VenueDTO!
   updateVenue(updateVenueInput: UpdateVenueInput!): VenueDTO!
   removeVenue(id: String!): VenueDTO!
-  addUserToVenue(venueId: String!, userId: String!): VenueDTO!
+  addEmployeeToVenue(venueId: String!, employeeId: String!): VenueDTO!
+  createEmployee(createEmployeeInput: CreateEmployeeInput!): EmployeeDTO!
+  updateEmployee(updateEmployeeInput: UpdateEmployeeInput!): EmployeeDTO!
+  removeEmployee(id: Int!): EmployeeDTO!
 }
 
 input SignupInput {
-  phoneNumber: String!
+  phoneNumber: String
+  role: UserRole! = ANONYMOUS
+  externalId: String
+}
+
+enum UserRole {
+  ANONYMOUS
+  PATRON
+  EMPLOYEE
+  OPERATOR
 }
 
 input VerifyInput {
-  phoneNumber: String
+  phoneNumber: String!
   code: String!
+  role: UserRole! = ANONYMOUS
 }
 
 input SwitchGroupInput {
@@ -198,35 +307,161 @@ input RefreshTokensInput {
 }
 
 input CreateGroupInput {
-  """Name of a group"""
+  """
+  Name of a group
+  """
   name: String!
 
-  """Description of a group"""
+  """
+  Description of a group
+  """
   description: String
 }
 
 input UpdateGroupInput {
-  """Name of a group"""
+  """
+  Name of a group
+  """
   name: String
 
-  """Description of a group"""
+  """
+  Description of a group
+  """
   description: String
   id: String!
 }
 
+input CreateOperatorInput {
+  """
+  Operator name
+  """
+  name: String
+
+  """
+  Phone number: +38164322521
+  """
+  phoneNumber: String!
+
+  """
+  External ID
+  """
+  externalId: String
+
+  """
+  User ID from Appwrite service
+  """
+  userId: String
+
+  """
+  Group IDs
+  """
+  groupIds: [String!]
+}
+
+input UpdateOperatorInput {
+  """
+  Operator name
+  """
+  name: String
+
+  """
+  Phone number: +38164322521
+  """
+  phoneNumber: String
+
+  """
+  External ID
+  """
+  externalId: String
+
+  """
+  User ID from Appwrite service
+  """
+  userId: String
+
+  """
+  Group IDs
+  """
+  groupIds: [String!]
+  id: Int!
+}
+
 input CreateVenueInput {
-  """Name of a venue"""
+  """
+  Name of a venue
+  """
   name: String!
 
-  """Address of a venue"""
+  """
+  Address of a venue
+  """
   address: String!
 }
 
 input UpdateVenueInput {
-  """Name of a venue"""
+  """
+  Name of a venue
+  """
   name: String
 
-  """Address of a venue"""
+  """
+  Address of a venue
+  """
   address: String
   id: String!
+}
+
+input CreateEmployeeInput {
+  """
+  Operator name
+  """
+  name: String
+
+  """
+  Phone number: +38164322521
+  """
+  phoneNumber: String!
+
+  """
+  External ID
+  """
+  externalId: String
+
+  """
+  User ID
+  """
+  userId: String
+
+  """
+  Group IDs
+  """
+  venueIds: [String!]
+}
+
+input UpdateEmployeeInput {
+  """
+  Operator name
+  """
+  name: String
+
+  """
+  Phone number: +38164322521
+  """
+  phoneNumber: String
+
+  """
+  External ID
+  """
+  externalId: String
+
+  """
+  User ID
+  """
+  userId: String
+
+  """
+  Group IDs
+  """
+  venueIds: [String!]
+  id: Int!
 }

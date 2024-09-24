@@ -9,6 +9,7 @@ import { SignupResponse } from './dto/sign-up-response.dto';
 import { VerifyResponse } from './dto/verify-response.dto';
 import { RefreshTokensResponse } from './dto/refresh-token-response.dto';
 import { VenueDTO } from './dto/venue.dto';
+import { UserRole } from './utils/user-role.enum';
 
 export interface ProxyJWTPayload {
   userId: string;
@@ -47,9 +48,15 @@ export class AuthService {
   constructor() {}
 
   async signup(input: SignupInput) {
+    let user = await appwriteService.getUserByPhoneNumber(input.phoneNumber);
+
+    if (!user) {
+      user = await appwriteService.createUser(input);
+    }
+
     const responseData = await apiServerService.sendPostGraphQLRequest<{ signup: SignupResponse }>({
       query: `mutation Signup {
-        signup(input: { phoneNumber: "${input.phoneNumber}" }) {
+        signup(input: { phoneNumber: "${input.phoneNumber}", userId: "${user.$id}", role: ${input.role} }) {
           accessToken
           refreshToken
           code
@@ -68,12 +75,12 @@ export class AuthService {
     }
   }
 
-  async verify(obj: { phoneNumber: string; code: string }) {
+  async verify(obj: { phoneNumber: string; code: string; role: UserRole }) {
     const { phoneNumber, code } = obj;
 
     const responseData = await apiServerService.sendPostGraphQLRequest<{ verify: VerifyResponse }>({
       query: `mutation Verify {
-      verify(input: { phoneNumber: "${phoneNumber}", code: "${code}" }) {
+      verify(input: { phoneNumber: "${phoneNumber}", role: ${obj.role}, code: "${code}" }) {
           accessToken
           refreshToken
       }
@@ -127,8 +134,7 @@ export class AuthService {
     }
   }
 
-  verifyRefreshJwt(jwtToken: any) {
-    console.log(jwtToken);
+  verifyRefreshJwt(jwtToken: string) {
     const splitted = jwtToken.split(' ');
     const token = splitted[1] ?? splitted[0];
     try {

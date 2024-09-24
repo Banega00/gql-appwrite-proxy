@@ -5,8 +5,6 @@ import { RefreshTokensInput } from './dto/refresh-token-input.dto';
 import { SignupInput } from './dto/sign-up-input.dto';
 import { VerifyInput } from './dto/verify.dto';
 import { Context } from './types';
-import { venueService } from './services/venue.service';
-import { groupService, GroupService } from './services/group.service';
 import { apiServerService } from './api-server.service';
 import { handleGraphQLErrorsFromAPI } from './helpers';
 
@@ -89,14 +87,24 @@ export const resolvers = {
     let { accessToken, refreshToken } = await authService.verify({
       phoneNumber: jwtTokenData.phoneNumber,
       code: input.code,
+      role: input.role,
     });
     const decodedApiData = authService.decodeApiTokensData(accessToken);
 
-    const user = await appwriteService.createOrUpdateUser(decodedApiData.userId, jwtTokenData.phoneNumber);
+    let user = await appwriteService.getUserByPhoneNumber(jwtTokenData.phoneNumber ?? input.phoneNumber);
+
+    if (!user) user = await appwriteService.createUser(input);
+
+    if (!user.prefs.roles) user.prefs.roles = [];
+    if (!user.prefs.roles.includes(input.role)) user.prefs.roles.push(input.role);
+
+    await appwriteService.updateUser(user.$id, { prefs: user.prefs });
+
+    // const user = await appwriteService.createOrUpdateUser(decodedApiData.userId, jwtTokenData.phoneNumber);
     // const session = await authService.createSessionForUser(decodedApiData.userId);
 
     const recodedTokens = authService.recodeAPITokensDataToProxyTokens({ accessToken, refreshToken }, { userId: user.$id, phoneNumber: jwtTokenData.phoneNumber });
-    return { accessToken: recodedTokens.accessToken, refreshToken };
+    return { accessToken: recodedTokens.accessToken, refreshToken: recodedTokens.refreshToken };
   },
 
   async refreshTokens(payload: { input: RefreshTokensInput }, context: Context) {
@@ -107,15 +115,11 @@ export const resolvers = {
 
     if (!payload?.input.refreshToken) throw new Error('No refresh token provided');
 
-    console.log('REFRESH TOKEN THAT I SENT: ', payload.input.refreshToken);
-
     const { refreshToken: refreshTokenForAPI } = authService.recodeProxyTokensDataToAPITokens(jwtTokenData);
-
-    console.log('RECODED REFRESH TOKEN', refreshTokenForAPI);
 
     let { accessToken, refreshToken } = await authService.refreshTokens(refreshTokenForAPI);
 
     const recodedTokens = authService.recodeAPITokensDataToProxyTokens({ accessToken, refreshToken }, { userId: jwtTokenData.userId, phoneNumber: jwtTokenData.phoneNumber });
-    return { accessToken: recodedTokens.accessToken, refreshToken };
+    return { accessToken: recodedTokens.accessToken, refreshToken: recodedTokens.refreshToken };
   },
 };

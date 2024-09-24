@@ -25,7 +25,9 @@ export class ApiServerService {
     } catch (error) {
       console.log('Error communicating with API server');
       if (isAxiosError(error)) {
-        console.log(error.response?.data);
+        console.log('AXIOS ERROR: ', error.response?.data);
+        if (error.response?.data.errors) return error.response?.data;
+
       }
       throw error;
     }

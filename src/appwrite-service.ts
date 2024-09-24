@@ -1,7 +1,8 @@
-import { Account, Client, ID, Query, Users } from 'node-appwrite';
+import { Account, Client, ID, Query, Users, Models } from 'node-appwrite';
 import { AppwriteConfig } from './appwrite-config';
 import { SignupInput } from './dto/sign-up-input.dto';
 import { authService } from './auth.service';
+import { AppwriteUserPreferences } from './utils/appwrite-user-preferences';
 
 class AppwriteService {
   private adminClient: Client;
@@ -37,31 +38,29 @@ class AppwriteService {
     return session;
   }
 
-  async updateUser(userId: string, data: { email: string; password: string; name: string }) {
+  async updateUser(userId: string, data: { email?: string; password?: string; name?: string; prefs: AppwriteUserPreferences }) {
     const user = new Users(this.adminClient);
 
     const currentUser = await user.get(userId);
 
-    currentUser.name != data.name && (await user.updateName(userId, data.name));
-    currentUser.email != data.email && (await user.updateEmail(userId, data.email));
-    currentUser.password != data.password && (await user.updatePassword(userId, data.password));
+    data.name && currentUser.name != data.name && (await user.updateName(userId, data.name));
+    data.email && currentUser.email != data.email && (await user.updateEmail(userId, data.email));
+    data.password && currentUser.password != data.password && (await user.updatePassword(userId, data.password));
+    data.prefs && currentUser.prefs != data.prefs && (await user.updatePrefs(userId, data.prefs));
     return await user.get(userId);
   }
 
-  async createOrSignInUser(input: SignupInput, userId?: string) {
+  async createUser(input: SignupInput) {
     const { phoneNumber } = input;
     const users = new Users(this.adminClient);
-    let user = (await users.list([Query.equal('phone', phoneNumber!)])).users[0];
+    const user = await users.create(ID.unique(), undefined, phoneNumber);
+    return user as Models.User<AppwriteUserPreferences>;
+  }
 
-    if (!user) {
-      user = await users.create(userId ? ID.custom(userId) : ID.unique(), undefined, phoneNumber);
-    }
-
-    // user.prefs = await users.updatePrefs(user.$id, { tokens });
-
-    const session = await users.createSession(user.$id);
-
-    return session;
+  async getUserByPhoneNumber(phoneNumber: string): Promise<Models.User<AppwriteUserPreferences>> {
+    const users = new Users(this.adminClient);
+    const user = (await users.list([Query.equal('phone', phoneNumber)])).users[0];
+    return user as Models.User<AppwriteUserPreferences>;
   }
 
   async createOrUpdateUser(userId: string, phoneNumber: string) {
